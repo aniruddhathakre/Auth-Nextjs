@@ -25,10 +25,14 @@ export default function SignupPage() {
       console.log("Signup success", response.data);
 
       router.push("/login");
-    } catch (error: any) {
-      console.log("Signup failed", error.message);
-
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("Signup failed", error.message);
+        toast.error(error.message);
+      } else {
+        console.log("Signup failed: An unknown error occurred.");
+        toast.error("An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }

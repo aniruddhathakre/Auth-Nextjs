@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { setLazyProp } from "next/dist/server/api-utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,9 +22,14 @@ export default function LoginPage() {
       console.log("Login success", response.data);
       toast.success("Login success");
       router.push("/profile");
-    } catch (error: any) {
-      console.log("Login failed", error.message);
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("Login failed", error.message);
+        toast.error(error.message);
+      } else {
+        console.log("Login failed", "An unexpected error occurred.");
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }

@@ -46,8 +46,12 @@ export async function POST(request: NextRequest) {
 
     try {
       await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });
-    } catch (emailError: any) {
-      console.error("Email sending failed:", emailError.message);
+    } catch (emailError: unknown) {
+      if (emailError instanceof Error) {
+        console.error("Email sending failed:", emailError.message);
+      } else {
+        console.error("Email sending failed with an unknown error.");
+      }
       // optionally, return a warning instead of failing whole signup
     }
 
@@ -55,7 +59,14 @@ export async function POST(request: NextRequest) {
       { message: "User created successfully", success: true, savedUser },
       { status: 201 }
     );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      return NextResponse.json(
+        { error: "An unknown error occurred." },
+        { status: 500 }
+      );
+    }
   }
 }

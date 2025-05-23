@@ -2,9 +2,20 @@ import nodemailer from "nodemailer";
 import User from "@/model/userModel";
 import bcryptjs from "bcryptjs";
 
-export const sendEmail = async ({ email, emailType, userId }: any) => {
+// Define an interface for the function parameters to provide type safety
+interface SendEmailParams {
+  email: string;
+  emailType: "VERIFY" | "RESET"; // Only these two values are expected
+  userId: string; // Assuming userId is a string (e.g., MongoDB ObjectId)
+}
+
+export const sendEmail = async ({
+  email,
+  emailType,
+  userId,
+}: SendEmailParams) => {
   try {
-    //create a hash token
+    // create a hash token
     const hashedToken = await bcryptjs.hash(userId.toString(), 10);
 
     if (emailType === "VERIFY") {
@@ -19,11 +30,12 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       });
     }
 
-    var transport = nodemailer.createTransport({
+    // Use 'const' instead of 'var' for transport
+    const transport = nodemailer.createTransport({
       host: "sandbox.smtp.mailtrap.io",
       port: 2525,
       auth: {
-        user: process.env.NODEMAILER_USER!,
+        user: process.env.NODEMAILER_USER!, // The '!' asserts that the value is not null/undefined
         pass: process.env.NODEMAILER_PASS!,
       },
     });
@@ -47,7 +59,13 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
     const mailresponse = await transport.sendMail(mailOptions);
 
     return mailresponse;
-  } catch (error: any) {
-    throw new Error(error.message);
+  } catch (error: unknown) {
+    // Use 'unknown' for caught errors
+    // Ensure 'error' is an instance of Error before accessing .message
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    // If it's not an Error object, rethrow as a generic Error
+    throw new Error("An unknown error occurred during email sending.");
   }
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import React from "react";
 import { useEffect, useState } from "react";
@@ -14,9 +14,17 @@ export default function VerifyEmailPage() {
     try {
       await axios.post("/api/users/verifyemail", { token });
       setVerified(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(true);
-      console.log(error.response.data);
+
+      if (error instanceof AxiosError && error.response) {
+        console.log(error.response.data);
+      } else if (error instanceof Error) {
+        // Fallback to generic Error message
+        console.log(error.message);
+      } else {
+        console.log("An unknown error occurred.");
+      }
     }
   };
 
