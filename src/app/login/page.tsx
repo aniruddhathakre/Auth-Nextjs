@@ -70,12 +70,14 @@ export default function LoginPage() {
       <button
         onClick={onLogin}
         className="w-full max-w-md p-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold transition"
+        disabled={buttonDisabled || loading} // <-- Fix 1: Use buttonDisabled here, also disable if loading
       >
-        Log In
+        {loading ? "Processing..." : "Log In"}{" "}
+        {/* Added "..." for processing state */}
       </button>
 
       <p className="mt-4 text-sm text-gray-400">
-        Don't have an account?{" "}
+        Don&apos;t have an account? {/* <-- Fix 2: Escaped the apostrophe */}
         <Link href="/signup" className="text-indigo-400 hover:underline">
           Sign up
         </Link>
